@@ -248,7 +248,7 @@ const Documents = () => {
                                 <h2 className="text-xl font-bold text-white">
                                     {editingDoc ? 'Editar Reporte PNC' : 'Nuevo Reporte de Producto No Conforme'}
                                 </h2>
-                                <p className="text-blue-400/60 text-xs font-medium uppercase tracking-widest mt-1">Formato Estándar de Calidad</p>
+                                <p className="hidden sm:block text-blue-400/60 text-xs font-medium uppercase tracking-widest mt-1">Formato Estándar de Calidad</p>
                             </div>
                             <button onClick={closeModal} className="text-white/40 hover:text-white transition-colors">
                                 <PlusIcon className="w-8 h-8 rotate-45" />
@@ -267,7 +267,7 @@ const Documents = () => {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`flex items-center gap-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-blue-400 border-blue-400 bg-blue-400/5' : 'text-white/40 border-transparent hover:text-white/60 hover:bg-white/5'
+                                        className={`flex items-center gap-2 px-6 py-5 sm:py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-blue-400 border-blue-400 bg-blue-400/5' : 'text-white/40 border-transparent hover:text-white/60 hover:bg-white/5'
                                             }`}
                                     >
                                         <tab.icon className="w-4 h-4" />

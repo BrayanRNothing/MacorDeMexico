@@ -10,10 +10,9 @@ import {
     XMarkIcon
 } from '@heroicons/react/24/outline';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, setIsOpen }) => {
     const navigate = useNavigate();
     const currentUser = String(localStorage.getItem('currentUser') || 'Usuario');
-    const [isOpen, setIsOpen] = useState(false);
 
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
@@ -29,19 +28,7 @@ const Sidebar = () => {
 
     return (
         <>
-            {/* Mobile Menu Button - Moved to be more centered and visible */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-blue-600/30 backdrop-blur-md border border-white/10 rounded-xl text-white shadow-lg active:scale-90 transition-transform"
-            >
-                {isOpen ? (
-                    <XMarkIcon className="w-6 h-6" />
-                ) : (
-                    <Bars3Icon className="w-6 h-6" />
-                )}
-            </button>
-
-            {/* Overlay for mobile */}
+            {/* Overlay for mobile - controlled by parent */}
             {isOpen && (
                 <div
                     className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-30"
@@ -62,7 +49,7 @@ const Sidebar = () => {
                 {/* Sidebar content */}
                 <div className="flex flex-col h-full p-4 relative z-10">
                     {/* Logo/Title */}
-                    <div className="mb-8 mt-16 lg:mt-4">
+                    <div className="mb-8 mt-4">
                         <div className="flex items-center gap-3 px-2">
                             <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 p-1">
                                 <img src={logo} alt="Logo" className="w-full h-auto object-contain" />
