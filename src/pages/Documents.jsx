@@ -255,24 +255,28 @@ const Documents = () => {
                             </button>
                         </div>
 
-                        {/* Modal Navigation */}
-                        <div className="flex border-b border-white/5 overflow-x-auto no-scrollbar bg-slate-900/50">
-                            {[
-                                { id: 'general', label: 'Datos Generales', icon: ClipboardDocumentCheckIcon },
-                                { id: 'nc', label: 'No Conformidad', icon: BeakerIcon },
-                                { id: 'disposicion', label: 'Disposición', icon: AdjustmentsHorizontalIcon },
-                                { id: 'autorizaciones', label: 'Firmas y Notificación', icon: UserGroupIcon }
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-blue-400 border-blue-400 bg-blue-400/5' : 'text-white/40 border-transparent hover:text-white/60 hover:bg-white/5'
-                                        }`}
-                                >
-                                    <tab.icon className="w-4 h-4" />
-                                    {tab.label}
-                                </button>
-                            ))}
+                        {/* Modal Navigation - Improved for mobile discoverability */}
+                        <div className="flex border-b border-white/5 overflow-x-auto bg-slate-900/50 relative shadow-inner custom-scrollbar">
+                            <div className="flex min-w-full px-2">
+                                {[
+                                    { id: 'general', label: 'Datos Generales', icon: ClipboardDocumentCheckIcon },
+                                    { id: 'nc', label: 'No Conformidad', icon: BeakerIcon },
+                                    { id: 'disposicion', label: 'Disposición', icon: AdjustmentsHorizontalIcon },
+                                    { id: 'autorizaciones', label: 'Firmas y Notificación', icon: UserGroupIcon }
+                                ].map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex items-center gap-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-all border-b-2 whitespace-nowrap ${activeTab === tab.id ? 'text-blue-400 border-blue-400 bg-blue-400/5' : 'text-white/40 border-transparent hover:text-white/60 hover:bg-white/5'
+                                            }`}
+                                    >
+                                        <tab.icon className="w-4 h-4" />
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                            {/* Horizontal scroll indicator for mobile */}
+                            <div className="absolute right-0 top-0 bottom-0 w-12 bg-linear-to-l from-slate-900 to-transparent pointer-events-none lg:hidden"></div>
                         </div>
 
                         {/* Modal Body */}
