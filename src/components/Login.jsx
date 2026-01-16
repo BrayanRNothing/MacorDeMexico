@@ -14,7 +14,7 @@ const Login = () => {
         setLoading(true);
 
         // Default credentials
-        if (credentials.username === 'user' && credentials.password === 'admin123') {
+        if (credentials.username === 'user' && credentials.password === '123') {
             localStorage.setItem('isAuthenticated', 'true');
             localStorage.setItem('currentUser', 'user');
             navigate('/dashboard');
@@ -116,7 +116,7 @@ const Login = () => {
                             <p className="text-[10px] text-white/40 font-medium">
                                 <span className="text-blue-400/60 font-mono">user</span>
                                 <span className="mx-2 opacity-20">|</span>
-                                <span className="text-blue-400/60 font-mono">admin123</span>
+                                <span className="text-blue-400/60 font-mono">123</span>
                             </p>
                         </div>
                     </div>
