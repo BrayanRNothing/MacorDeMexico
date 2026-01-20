@@ -612,13 +612,48 @@ const Documents = () => {
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Defecto</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={formData.roles?.defecto || ''}
                                                     onChange={(e) => handleSubFieldChange('roles', 'defecto', e.target.value)}
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
-                                                    placeholder="Tipo de defecto..."
-                                                />
+                                                >
+                                                    <option value="">Seleccionar defecto...</option>
+                                                    <option value="Pieza Mal Ensamblada">Pieza Mal Ensamblada</option>
+                                                    <option value="Pieza Dañada">Pieza Dañada</option>
+                                                    <option value="Sin Identificación">Sin Identificación</option>
+                                                    <option value="Laminado">Laminado</option>
+                                                    <option value="Fuga de Helio">Fuga de Helio</option>
+                                                    <option value="Fuga de Agua">Fuga de Agua</option>
+                                                    <option value="Fuga de Aire">Fuga de Aire</option>
+                                                    <option value="Falta de Roscas">Falta de Roscas</option>
+                                                    <option value="Enterrones con Diodo">Enterrones con Diodo</option>
+                                                    <option value="Roscas Dañadas">Roscas Dañadas</option>
+                                                    <option value="Grietas">Grietas</option>
+                                                    <option value="Mal Corte">Mal Corte</option>
+                                                    <option value="Mal Identificada">Mal Identificada</option>
+                                                    <option value="Planicidad">Planicidad</option>
+                                                    <option value="Tubo de Cobre Dañado">Tubo de Cobre Dañado</option>
+                                                    <option value="Mala Nivelación">Mala Nivelación</option>
+                                                    <option value="Inclusiones">Inclusiones</option>
+                                                    <option value="Falta de Fusión">Falta de Fusión</option>
+                                                    <option value="Falta de Penetración">Falta de Penetración</option>
+                                                    <option value="Porosidad">Porosidad</option>
+                                                    <option value="Garganta Insuficiente">Garganta Insuficiente</option>
+                                                    <option value="Pierna Insuficiente">Pierna Insuficiente</option>
+                                                    <option value="Corte Biselado">Corte Biselado</option>
+                                                    <option value="Pintura Mal Aplicada">Pintura Mal Aplicada</option>
+                                                    <option value="Oxidación">Oxidación</option>
+                                                    <option value="Poros">Poros</option>
+                                                    <option value="Socavados">Socavados</option>
+                                                    <option value="Falta de Limpieza">Falta de Limpieza</option>
+                                                    <option value="Falta de Soldadura">Falta de Soldadura</option>
+                                                    <option value="Falta de Remates">Falta de Remates</option>
+                                                    <option value="Medida Fuera de Especificación">Medida Fuera de Especificación</option>
+                                                    <option value="Falta de Componentes">Falta de Componentes</option>
+                                                    <option value="Solape">Solape</option>
+                                                    <option value="Mala Expansión">Mala Expansión</option>
+                                                    <option value="Dobles Invertido">Dobles Invertido</option>
+                                                </select>
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Supervisor</label>
