@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { PlusIcon, PencilIcon, TrashIcon, DocumentArrowDownIcon, ClipboardDocumentCheckIcon, BeakerIcon, AdjustmentsHorizontalIcon, UserGroupIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, PencilIcon, TrashIcon, DocumentArrowDownIcon, ClipboardDocumentCheckIcon, BeakerIcon, AdjustmentsHorizontalIcon, UserGroupIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { generatePNCReport } from '../services/pdfService';
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
     const [showModal, setShowModal] = useState(false);
+    const [showDBModal, setShowDBModal] = useState(false);
     const [editingDoc, setEditingDoc] = useState(null);
     const [activeTab, setActiveTab] = useState('general');
 
@@ -131,9 +132,52 @@ const Documents = () => {
 
     const closeModal = () => {
         setShowModal(false);
+        setShowDBModal(false);
         setEditingDoc(null);
         setFormData(initialFormState);
         setActiveTab('general');
+    };
+
+    const handleExportData = () => {
+        const data = {
+            documents: documents,
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `respaldo_dae_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportData = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (data.documents && Array.isArray(data.documents)) {
+                    if (confirm(`¿Deseas importar ${data.documents.length} reportes? Esto se sumará a tus reportes actuales.`)) {
+                        const existingIds = new Set(documents.map(d => d.id));
+                        const newDocs = data.documents.filter(d => !existingIds.has(d.id));
+                        const updatedDocs = [...documents, ...newDocs];
+                        saveDocuments(updatedDocs);
+                        alert('Importación exitosa. Se agregaron los reportes nuevos.');
+                        setShowDBModal(false);
+                    }
+                } else {
+                    alert('Archivo de respaldo no válido.');
+                }
+            } catch (err) {
+                alert('Error al leer el archivo.');
+            }
+        };
+        reader.readAsText(file);
     };
 
     const toggleCheckbox = (section, field) => {
@@ -164,13 +208,22 @@ const Documents = () => {
                     <h1 className="text-3xl font-bold text-white tracking-tight">Reportes PNC</h1>
                     <p className="text-blue-200/60 text-sm">Control de Producto No Conforme</p>
                 </div>
-                <button
-                    onClick={() => setShowModal(true)}
-                    className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
-                >
-                    <PlusIcon className="w-5 h-5" />
-                    <span>NUEVO REPORTE</span>
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => setShowDBModal(true)}
+                        className="p-3 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white rounded-xl transition-all border border-white/10"
+                        title="Gestión de Datos"
+                    >
+                        <CloudArrowUpIcon className="w-6 h-6" />
+                    </button>
+                    <button
+                        onClick={() => setShowModal(true)}
+                        className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95"
+                    >
+                        <PlusIcon className="w-5 h-5" />
+                        <span>NUEVO REPORTE</span>
+                    </button>
+                </div>
             </div>
 
             {/* Documents Grid */}
@@ -335,7 +388,7 @@ const Documents = () => {
                                                         }`} onClick={() => toggleCheckbox('detectedIn', key)}>
                                                         {formData.detectedIn[key] && <div className="w-2 h-2 bg-white rounded-sm"></div>}
                                                     </div>
-                                                    <span className="text-xs text-white/70 capitalize">{key === 'procesoCNC' ? 'Proceso CNC' : key}</span>
+                                                    <span className="text-xs text-white/70 capitalize">{key === 'procesoPNC' ? 'Proceso PNC' : key}</span>
                                                 </label>
                                             ))}
                                         </div>
@@ -751,6 +804,53 @@ const Documents = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Database Management Modal */}
+            {showDBModal && (
+                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[60] p-4">
+                    <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+                        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <h2 className="text-xl font-bold text-white">Gestión de Datos</h2>
+                            <button onClick={closeModal} className="text-white/40 hover:text-white transition-colors">
+                                <PlusIcon className="w-8 h-8 rotate-45" />
+                            </button>
+                        </div>
+                        <div className="p-8 space-y-6">
+                            <div className="space-y-4">
+                                <p className="text-sm text-white/60">Utiliza estas opciones para respaldar o transferir tus reportes entre diferentes computadoras.</p>
+
+                                <button
+                                    onClick={handleExportData}
+                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 border border-blue-500/30 rounded-2xl transition-all font-bold group"
+                                >
+                                    <DocumentArrowDownIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                    <div>
+                                        <div className="text-left">Exportar Respaldo</div>
+                                        <div className="text-[10px] font-normal opacity-60 uppercase tracking-tighter">Descargar archivo .json</div>
+                                    </div>
+                                </button>
+
+                                <label className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 rounded-2xl transition-all font-bold group cursor-pointer">
+                                    <CloudArrowUpIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                    <div>
+                                        <div className="text-left">Importar Respaldo</div>
+                                        <div className="text-[10px] font-normal opacity-60 uppercase tracking-tighter">Subir archivo .json</div>
+                                    </div>
+                                    <input
+                                        type="file"
+                                        accept=".json"
+                                        onChange={handleImportData}
+                                        className="hidden"
+                                    />
+                                </label>
+                            </div>
+
+                            <div className="pt-4 border-t border-white/5">
+                                <p className="text-[10px] text-center text-white/30 uppercase tracking-[0.2em]">DAE Statistics System v1.0</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             )}
