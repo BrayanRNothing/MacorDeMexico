@@ -41,8 +41,7 @@ export const generatePNCReport = (doc) => {
         pdf.text('MACOR MÉXICO', margin + 5, y + 9);
     }
 
-    pdf.setLineWidth(0.5);
-    pdf.rect(margin, y, 40, 15);
+    // pdf.rect(margin, y, 40, 15); // Removed box around logo as requested
 
     // Title
     pdf.setFontSize(12);
@@ -61,8 +60,8 @@ export const generatePNCReport = (doc) => {
     y += 5;
     pdf.rect(margin, y, contentWidth, 10);
     const detectX = [margin + 5, margin + 45, margin + 85, margin + 125, margin + 155];
-    const detectLabels = ['RECEPCIÓN', 'PROCESO CNC', 'EMBARQUE', 'ALMACENAJE', 'CLIENTE'];
-    const detectKeys = ['recepcion', 'procesoCNC', 'embarque', 'almacenaje', 'cliente'];
+    const detectLabels = ['RECEPCIÓN', 'PROCESO PNC', 'EMBARQUE', 'ALMACENAJE', 'CLIENTE'];
+    const detectKeys = ['recepcion', 'procesoPNC', 'embarque', 'almacenaje', 'cliente'];
 
     detectX.forEach((x, i) => {
         drawCheckbox(x, y + 6.5, detectLabels[i], doc.detectedIn[detectKeys[i]]);

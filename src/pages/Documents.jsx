@@ -12,7 +12,7 @@ const Documents = () => {
         folio: '',
         detectedIn: {
             recepcion: false,
-            procesoCNC: true,
+            procesoPNC: true,
             embarque: false,
             almacenaje: false,
             cliente: false
@@ -68,6 +68,7 @@ const Documents = () => {
         },
         roles: {
             inspector: '',
+            operador: '',
             area: '',
             defecto: '',
             supervisor: ''
@@ -662,6 +663,16 @@ const Documents = () => {
                                                     <option value="Mala Expansión">Mala Expansión</option>
                                                     <option value="Dobles Invertido">Dobles Invertido</option>
                                                 </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Operador</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.roles?.operador || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'operador', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                    placeholder="Nombre del operador..."
+                                                />
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Supervisor</label>
