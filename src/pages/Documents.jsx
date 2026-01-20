@@ -602,13 +602,21 @@ const Documents = () => {
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Área</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={formData.roles?.area || ''}
                                                     onChange={(e) => handleSubFieldChange('roles', 'area', e.target.value)}
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
-                                                    placeholder="Ej. CNC, Ensamble..."
-                                                />
+                                                >
+                                                    <option value="">Seleccionar área...</option>
+                                                    <option value="Limpieza y Entubado">Limpieza y Entubado</option>
+                                                    <option value="Rolado">Rolado</option>
+                                                    <option value="Expansión">Expansión</option>
+                                                    <option value="Burst Test">Burst Test</option>
+                                                    <option value="Leak Test">Leak Test</option>
+                                                    <option value="Hydro Test">Hydro Test</option>
+                                                    <option value="Lavado">Lavado</option>
+                                                    <option value="Pintura">Pintura</option>
+                                                </select>
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Defecto</label>
