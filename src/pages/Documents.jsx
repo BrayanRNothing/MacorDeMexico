@@ -809,7 +809,7 @@ const Documents = () => {
             )}
             {/* Database Management Modal */}
             {showDBModal && (
-                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-[60] p-4">
+                <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-60 p-4">
                     <div className="bg-slate-900 border border-white/10 rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
                         <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/5">
                             <h2 className="text-xl font-bold text-white">Gestión de Datos</h2>
