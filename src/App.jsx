@@ -7,6 +7,7 @@ import DashboardLayout from './components/DashboardLayout';
 import DashboardHome from './pages/DashboardHome';
 import Users from './pages/Users';
 import Documents from './pages/Documents';
+import Metrics from './pages/Metrics';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route index element={<DashboardHome />} />
             <Route path="users" element={<Users />} />
             <Route path="documents" element={<Documents />} />
+            <Route path="metrics" element={<Metrics />} />
           </Route>
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />

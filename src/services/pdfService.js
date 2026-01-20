@@ -146,27 +146,24 @@ export const generatePNCReport = (doc) => {
     pdf.text('DICTAMEN DE CALIDAD:', margin + 2, y + 6.5);
     pdf.setFont('helvetica', 'normal');
     pdf.text(doc.dictamen || '', margin + 45, y + 6.5);
-    pdf.line(margin + 44, y + 7, margin + 90, y + 7);
-
-    pdf.setFont('helvetica', 'bold');
-    pdf.text('Operador:', margin + 100, y + 6.5);
-    pdf.setFont('helvetica', 'normal');
-    pdf.text(doc.operador || '', margin + 120, y + 6.5);
-    pdf.line(margin + 119, y + 7, contentWidth + margin - 2, y + 7);
+    pdf.line(margin + 44, y + 7, contentWidth - 20, y + 7);
     y += 10;
 
     // --- ÁREA RESPONSABLE ---
     drawSectionHeader(y, 'ÁREA RESPONSABLE:');
     y += 5;
     pdf.rect(margin, y, contentWidth, 10);
-    const areaLabels = ['RECIBO', 'PRODUCCIÓN', 'EMBARQUES'];
-    const areaKeys = ['recibo', 'produccion', 'embarques'];
+    const areaLabels = ['RECIBO', 'PRODUCCIÓN', 'EMBARQUES', 'OTRO'];
+    const areaKeys = ['recibo', 'produccion', 'embarques', 'otro'];
     areaKeys.forEach((key, i) => {
-        drawCheckbox(margin + 5 + (i * 45), y + 6.5, areaLabels[i], doc.areaResponsable[key]);
+        if (i < 3) {
+            drawCheckbox(margin + 5 + (i * 50), y + 6.5, areaLabels[i], doc.areaResponsable?.[key]);
+        } else {
+            drawCheckbox(margin + 155, y + 6.5, areaLabels[i] + ':', !!doc.areaResponsable?.otros);
+            pdf.text(doc.areaResponsable?.otros || '', margin + 172, y + 6.5);
+            pdf.line(margin + 170, y + 7, contentWidth + margin - 2, y + 7);
+        }
     });
-    drawCheckbox(margin + 140, y + 6.5, 'OTROS:', !!doc.areaResponsable.otros);
-    pdf.text(doc.areaResponsable.otros || '', margin + 160, y + 6.5);
-    pdf.line(margin + 158, y + 7, contentWidth + margin - 2, y + 7);
     y += 10;
 
     // --- DISPOSICIÓN & SOPORTE ---
@@ -228,17 +225,27 @@ export const generatePNCReport = (doc) => {
     drawSectionHeader(y, 'NOTIFICADO A:');
     y += 5;
     pdf.rect(margin, y, contentWidth, 15);
-    const notifyLabels = ['PRODUCCIÓN', 'INGENIERÍA', 'EMBARQUES', 'COMERCIAL', 'COMPRAS'];
-    const notifyKeys = ['produccion', 'ingenieria', 'embarques', 'comercial', 'compras'];
+    const notifyLabels = ['PRODUCCIÓN', 'COMERCIAL', 'INGENIERÍA', 'COMPRAS', 'EMBARQUES', 'OTRO(S):'];
+    const notifyKeys = ['produccion', 'comercial', 'ingenieria', 'compras', 'embarques', 'otro'];
 
     notifyKeys.forEach((key, i) => {
-        const row = Math.floor(i / 3);
-        const col = i % 3;
-        drawCheckbox(margin + 5 + (col * 60), y + 6 + (row * 6), notifyLabels[i], doc.notificadoA[key]);
+        const col = i % 2;
+        const row = Math.floor(i / 2);
+        if (i < 5) {
+            drawCheckbox(margin + 5 + (col * 95), y + 4 + (row * 5), notifyLabels[i], doc.notificadoA?.[key]);
+        } else {
+            drawCheckbox(margin + 5 + (col * 95), y + 4 + (row * 5), notifyLabels[i], !!doc.notificadoA?.otro);
+            pdf.text(doc.notificadoA?.otro || '', margin + 30 + (col * 95), y + 4 + (row * 5));
+            pdf.line(margin + 28 + (col * 95), y + 4.5 + (row * 5), contentWidth + margin - 2, y + 4.5 + (row * 5));
+        }
     });
-    drawCheckbox(margin + 125, y + 12, 'OTRO(S):', !!doc.notificadoA.otro);
-    pdf.text(doc.notificadoA.otro || '', margin + 145, y + 12);
-    pdf.line(margin + 143, y + 12.5, contentWidth + margin - 2, y + 12.5);
+    y += 15;
+
+    // --- FOOTER: Document Control ---
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text('MM-FO-CA-06', pageWidth - margin - 25, pageHeight - 10);
+    pdf.text('REV. 02', pageWidth - margin - 25, pageHeight - 6);
 
     // Save
     pdf.save(`PNC_${doc.folio || doc.id}.pdf`);

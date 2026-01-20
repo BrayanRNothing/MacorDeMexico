@@ -31,7 +31,6 @@ const Documents = () => {
         fechaRemision: '',
         descripcionNC: '',
         dictamen: '',
-        operador: '',
         areaResponsable: {
             recibo: false,
             produccion: false,
@@ -66,6 +65,12 @@ const Documents = () => {
             comercial: false,
             compras: false,
             otro: ''
+        },
+        roles: {
+            inspector: '',
+            area: '',
+            defecto: '',
+            supervisor: ''
         },
         status: 'Activo'
     };
@@ -262,6 +267,7 @@ const Documents = () => {
                                     { id: 'general', label: 'Datos Generales', icon: ClipboardDocumentCheckIcon },
                                     { id: 'nc', label: 'No Conformidad', icon: BeakerIcon },
                                     { id: 'disposicion', label: 'Disposición', icon: AdjustmentsHorizontalIcon },
+                                    { id: 'roles', label: 'Roles y Métricas', icon: UserGroupIcon },
                                     { id: 'autorizaciones', label: 'Firmas y Notificación', icon: UserGroupIcon }
                                 ].map(tab => (
                                     <button
@@ -304,6 +310,7 @@ const Documents = () => {
                                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
                                             />
                                         </div>
+                                        {/* Status */}
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-bold text-blue-200/50 uppercase tracking-widest ml-1">Estado</label>
                                             <select
@@ -466,27 +473,15 @@ const Documents = () => {
                                         />
                                     </div>
 
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Dictamen de Calidad</label>
-                                            <input
-                                                type="text"
-                                                value={formData.dictamen}
-                                                onChange={(e) => setFormData({ ...formData, dictamen: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
-                                                placeholder="Ej. Scrap, Retrabajo..."
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Operador</label>
-                                            <input
-                                                type="text"
-                                                value={formData.operador}
-                                                onChange={(e) => setFormData({ ...formData, operador: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
-                                                placeholder="Nombre del operador..."
-                                            />
-                                        </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold text-blue-400 uppercase tracking-widest ml-1">Dictamen de Calidad</label>
+                                        <input
+                                            type="text"
+                                            value={formData.dictamen}
+                                            onChange={(e) => setFormData({ ...formData, dictamen: e.target.value })}
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-blue-500/50 outline-none"
+                                            placeholder="Ej. Scrap, Retrabajo..."
+                                        />
                                     </div>
 
                                     <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
@@ -585,6 +580,57 @@ const Documents = () => {
                                             className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-4 text-white focus:ring-2 focus:ring-blue-500/50 outline-none min-h-[120px] resize-none"
                                             placeholder="Describe las correcciones realizadas..."
                                         />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'roles' && (
+                                <div className="space-y-8">
+                                    <div className="bg-white/5 rounded-2xl p-6 border border-white/5">
+                                        <p className="text-[10px] font-bold text-blue-400 uppercase tracking-[0.2em] mb-6">Roles para Métricas de Calidad:</p>
+                                        <p className="text-xs text-white/40 mb-6">Estos campos son utilizados para generar gráficas y estadísticas de desempeño.</p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Inspector</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.roles?.inspector || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'inspector', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                    placeholder="Nombre del inspector..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Área</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.roles?.area || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'area', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                    placeholder="Ej. CNC, Ensamble..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Defecto</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.roles?.defecto || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'defecto', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                    placeholder="Tipo de defecto..."
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Supervisor</label>
+                                                <input
+                                                    type="text"
+                                                    value={formData.roles?.supervisor || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'supervisor', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                    placeholder="Nombre del supervisor..."
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}

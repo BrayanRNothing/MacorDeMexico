@@ -5,6 +5,7 @@ import {
     HomeIcon,
     UsersIcon,
     DocumentTextIcon,
+    ChartBarIcon,
     ArrowRightOnRectangleIcon,
     Bars3Icon,
     XMarkIcon
@@ -24,6 +25,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         { name: 'Dashboard', path: '/dashboard', icon: HomeIcon, end: true },
         { name: 'Usuarios', path: '/dashboard/users', icon: UsersIcon },
         { name: 'Documentos', path: '/dashboard/documents', icon: DocumentTextIcon },
+        { name: 'Métricas', path: '/dashboard/metrics', icon: ChartBarIcon },
     ];
 
     return (
