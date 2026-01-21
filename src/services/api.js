@@ -1,5 +1,6 @@
-// Backend URL - Hardcoded for production (Railway)
-const API_URL = 'https://focused-presence-production-6e28.up.railway.app/api';
+
+// Usa variable de entorno VITE_API_URL, si no existe usa Railway como fallback
+const API_URL = import.meta.env.VITE_API_URL || 'https://focused-presence-production-6e28.up.railway.app/api';
 
 
 export const api = {
