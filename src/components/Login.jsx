@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { api } from '../services/api';
 
 const Login = () => {
     const [credentials, setCredentials] = useState({ username: '', password: '' });
@@ -15,16 +16,7 @@ const Login = () => {
 
         try {
             // Using the DAE-specific API for isolated login
-            const response = await fetch('http://localhost:4000/api/dae/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: credentials.username,
-                    password: credentials.password
-                })
-            });
-
-            const data = await response.json();
+            const data = await api.login(credentials.username, credentials.password);
 
             if (data.success) {
                 localStorage.setItem('isAuthenticated', 'true');

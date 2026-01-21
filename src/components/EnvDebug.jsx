@@ -4,7 +4,7 @@ export default function EnvDebug() {
     const [apiTest, setApiTest] = useState('Testing...');
 
     const API_URL = import.meta.env.VITE_API_URL;
-    const FINAL_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+    const FINAL_URL = import.meta.env.VITE_API_URL || 'https://focused-presence-production-6e28.up.railway.app/api';
 
     useEffect(() => {
         fetch(`${FINAL_URL}/dae/catalogs`)
