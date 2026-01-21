@@ -1,4 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+// Backend URL - Hardcoded for production (Railway)
+const API_URL = 'https://focused-presence-production-6e28.up.railway.app/api';
+
 
 export const api = {
     // Auth (DAE Specific)
