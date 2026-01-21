@@ -8,12 +8,17 @@ import {
     ChartBarIcon,
     ArrowRightOnRectangleIcon,
     Bars3Icon,
-    XMarkIcon
+    XMarkIcon,
+    Cog6ToothIcon
 } from '@heroicons/react/24/outline';
+
+
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
     const navigate = useNavigate();
     const currentUser = String(localStorage.getItem('currentUser') || 'Usuario');
+    const userRole = String(localStorage.getItem('userRole') || 'Usuario');
+
 
     const handleLogout = () => {
         localStorage.removeItem('isAuthenticated');
@@ -23,10 +28,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     const menuItems = [
         { name: 'Dashboard', path: '/dashboard', icon: HomeIcon, end: true },
-        { name: 'Usuarios', path: '/dashboard/users', icon: UsersIcon },
         { name: 'Documentos', path: '/dashboard/documents', icon: DocumentTextIcon },
         { name: 'Métricas', path: '/dashboard/metrics', icon: ChartBarIcon },
+        { name: 'Gestión', path: '/dashboard/management', icon: Cog6ToothIcon },
     ];
+
 
     return (
         <>
@@ -77,8 +83,9 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                                 <p className="font-bold text-sm text-white truncate">{currentUser}</p>
                                 <div className="flex items-center gap-1">
                                     <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></div>
-                                    <p className="text-[10px] text-blue-200/70 font-medium">Administrador</p>
+                                    <p className="text-[10px] text-blue-200/70 font-medium capitalize">{userRole}</p>
                                 </div>
+
                             </div>
                         </div>
                     </div>

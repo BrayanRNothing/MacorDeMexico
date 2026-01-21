@@ -8,23 +8,43 @@ const Login = () => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setLoading(true);
 
-        // Default credentials
-        if (credentials.username === 'user' && credentials.password === '123') {
-            localStorage.setItem('isAuthenticated', 'true');
-            localStorage.setItem('currentUser', 'user');
-            navigate('/dashboard');
-        } else {
-            setError('Usuario o contraseña incorrectos');
-            setTimeout(() => setError(''), 3000);
-        }
+        try {
+            // Using the DAE-specific API for isolated login
+            const response = await fetch('http://localhost:4000/api/dae/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: credentials.username,
+                    password: credentials.password
+                })
+            });
 
-        setLoading(false);
+            const data = await response.json();
+
+            if (data.success) {
+                localStorage.setItem('isAuthenticated', 'true');
+                localStorage.setItem('currentUser', data.user.nombre);
+                localStorage.setItem('userEmail', data.user.email);
+                localStorage.setItem('userRole', data.user.rol);
+                navigate('/dashboard');
+            } else {
+                setError(data.message || 'Usuario o contraseña incorrectos');
+                setTimeout(() => setError(''), 3000);
+            }
+        } catch (err) {
+            setError('Error de conexión con el servidor DAE');
+            setTimeout(() => setError(''), 3000);
+        } finally {
+            setLoading(false);
+        }
     };
+
+
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">

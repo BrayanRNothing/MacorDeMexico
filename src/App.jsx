@@ -8,6 +8,7 @@ import DashboardHome from './pages/DashboardHome';
 import Users from './pages/Users';
 import Documents from './pages/Documents';
 import Metrics from './pages/Metrics';
+import Management from './pages/Management';
 
 function App() {
   return (
@@ -28,7 +29,9 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="documents" element={<Documents />} />
             <Route path="metrics" element={<Metrics />} />
+            <Route path="management" element={<Management />} />
           </Route>
+
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

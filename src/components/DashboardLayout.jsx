@@ -12,7 +12,10 @@ const DashboardLayout = () => {
         if (path === '/dashboard') return 'DASHBOARD';
         if (path.includes('/users')) return 'USUARIOS';
         if (path.includes('/documents')) return 'DOCUMENTOS';
+        if (path.includes('/metrics')) return 'MÉTRICAS';
+        if (path.includes('/management')) return 'GESTIÓN';
         return 'PNC SYSTEM';
+
     };
 
     return (

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon, DocumentArrowDownIcon, ClipboardDocumentCheckIcon, BeakerIcon, AdjustmentsHorizontalIcon, UserGroupIcon, CloudArrowUpIcon } from '@heroicons/react/24/outline';
 import { generatePNCReport } from '../services/pdfService';
+import api from '../services/api';
+
 
 const Documents = () => {
     const [documents, setDocuments] = useState([]);
@@ -8,6 +10,8 @@ const Documents = () => {
     const [showDBModal, setShowDBModal] = useState(false);
     const [editingDoc, setEditingDoc] = useState(null);
     const [activeTab, setActiveTab] = useState('general');
+    const [catalogs, setCatalogs] = useState({ area: [], defecto: [], operador: [], supervisor: [] });
+
 
     const initialFormState = {
         folio: '',
@@ -72,7 +76,8 @@ const Documents = () => {
             operador: '',
             area: '',
             defecto: '',
-            supervisor: ''
+            supervisor: '',
+            auditor: ''
         },
         status: 'Activo'
     };
@@ -81,38 +86,63 @@ const Documents = () => {
 
     useEffect(() => {
         loadDocuments();
+        loadCatalogs();
     }, []);
 
-    const loadDocuments = () => {
-        const savedDocs = JSON.parse(localStorage.getItem('documents') || '[]');
-        setDocuments(savedDocs);
+    const loadCatalogs = async () => {
+        try {
+            const response = await api.getCatalogs();
+            if (response.success) {
+                const organized = response.catalogs.reduce((acc, item) => {
+                    if (!acc[item.categoria]) acc[item.categoria] = [];
+                    acc[item.categoria].push(item.valor);
+                    return acc;
+                }, { area: [], defecto: [], operador: [], supervisor: [], auditor: [], inspector: [] });
+                setCatalogs(organized);
+
+            }
+        } catch (err) {
+            console.error('Error loading catalogs:', err);
+        }
     };
 
-    const saveDocuments = (updatedDocs) => {
-        localStorage.setItem('documents', JSON.stringify(updatedDocs));
-        setDocuments(updatedDocs);
+
+    const loadDocuments = async () => {
+        try {
+            const data = await api.getPNCReports();
+            if (data.success) {
+                setDocuments(data.reports.map(r => ({ ...r.data, id: r.id })));
+            }
+        } catch (err) {
+            console.error('Error loading documents:', err);
+        }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (editingDoc) {
-            const updatedDocs = documents.map(d =>
-                d.id === editingDoc.id ? { ...formData, id: d.id, title: formData.cliente || 'Sin Cliente' } : d
-            );
-            saveDocuments(updatedDocs);
-        } else {
-            const newDoc = {
-                ...formData,
-                id: Date.now().toString(),
-                title: formData.cliente || 'Sin Cliente',
-                createdAt: new Date().toISOString()
-            };
-            saveDocuments([...documents, newDoc]);
+        try {
+            if (editingDoc) {
+                const response = await api.updatePNCReport(editingDoc.id, {
+                    ...formData,
+                    id: editingDoc.id
+                });
+                if (response.success) loadDocuments();
+            } else {
+                const response = await api.createPNCReport({
+                    ...formData,
+                    id: Date.now().toString(),
+                    createdAt: new Date().toISOString()
+                });
+                if (response.success) loadDocuments();
+            }
+            closeModal();
+        } catch (err) {
+            console.error('Error saving document:', err);
+            alert('Error al guardar el reporte');
         }
-
-        closeModal();
     };
+
 
     const handleEdit = (doc) => {
         setEditingDoc(doc);
@@ -120,11 +150,17 @@ const Documents = () => {
         setShowModal(true);
     };
 
-    const handleDelete = (id) => {
+    const handleDelete = async (id) => {
         if (confirm('¿Estás seguro de eliminar este reporte?')) {
-            saveDocuments(documents.filter(d => d.id !== id));
+            try {
+                const response = await api.deletePNCReport(id);
+                if (response.success) loadDocuments();
+            } catch (err) {
+                console.error('Error deleting document:', err);
+            }
         }
     };
+
 
     const handleGeneratePDF = (doc) => {
         generatePNCReport(doc);
@@ -179,6 +215,14 @@ const Documents = () => {
         };
         reader.readAsText(file);
     };
+
+    const handleClearAllData = () => {
+        if (confirm('¡ATENCIÓN! ¿Estás seguro de eliminar TODOS los reportes? Esta acción no se puede deshacer. Te recomendamos exportar un respaldo primero.')) {
+            // This would need a backend endpoint to clear all, or just let it be manual
+            alert('Para borrar todos los datos, contacte al administrador de la base de datos.');
+        }
+    };
+
 
     const toggleCheckbox = (section, field) => {
         setFormData(prev => ({
@@ -646,13 +690,16 @@ const Documents = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Inspector</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={formData.roles?.inspector || ''}
                                                     onChange={(e) => handleSubFieldChange('roles', 'inspector', e.target.value)}
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
-                                                    placeholder="Nombre del inspector..."
-                                                />
+                                                >
+                                                    <option value="">Seleccionar inspector...</option>
+                                                    {catalogs.inspector?.map(insp => (
+                                                        <option key={insp} value={insp}>{insp}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Área</label>
@@ -662,15 +709,23 @@ const Documents = () => {
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
                                                 >
                                                     <option value="">Seleccionar área...</option>
-                                                    <option value="Limpieza y Entubado">Limpieza y Entubado</option>
-                                                    <option value="Rolado">Rolado</option>
-                                                    <option value="Expansión">Expansión</option>
-                                                    <option value="Burst Test">Burst Test</option>
-                                                    <option value="Leak Test">Leak Test</option>
-                                                    <option value="Hydro Test">Hydro Test</option>
-                                                    <option value="Lavado">Lavado</option>
-                                                    <option value="Pintura">Pintura</option>
+                                                    {catalogs.area.map(area => (
+                                                        <option key={area} value={area}>{area}</option>
+                                                    ))}
+                                                    {catalogs.area.length === 0 && (
+                                                        <>
+                                                            <option value="Limpieza y Entubado">Limpieza y Entubado</option>
+                                                            <option value="Rolado">Rolado</option>
+                                                            <option value="Expansión">Expansión</option>
+                                                            <option value="Burst Test">Burst Test</option>
+                                                            <option value="Leak Test">Leak Test</option>
+                                                            <option value="Hydro Test">Hydro Test</option>
+                                                            <option value="Lavado">Lavado</option>
+                                                            <option value="Pintura">Pintura</option>
+                                                        </>
+                                                    )}
                                                 </select>
+
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Defecto</label>
@@ -680,63 +735,92 @@ const Documents = () => {
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
                                                 >
                                                     <option value="">Seleccionar defecto...</option>
-                                                    <option value="Pieza Mal Ensamblada">Pieza Mal Ensamblada</option>
-                                                    <option value="Pieza Dañada">Pieza Dañada</option>
-                                                    <option value="Sin Identificación">Sin Identificación</option>
-                                                    <option value="Laminado">Laminado</option>
-                                                    <option value="Fuga de Helio">Fuga de Helio</option>
-                                                    <option value="Fuga de Agua">Fuga de Agua</option>
-                                                    <option value="Fuga de Aire">Fuga de Aire</option>
-                                                    <option value="Falta de Roscas">Falta de Roscas</option>
-                                                    <option value="Enterrones con Diodo">Enterrones con Diodo</option>
-                                                    <option value="Roscas Dañadas">Roscas Dañadas</option>
-                                                    <option value="Grietas">Grietas</option>
-                                                    <option value="Mal Corte">Mal Corte</option>
-                                                    <option value="Mal Identificada">Mal Identificada</option>
-                                                    <option value="Planicidad">Planicidad</option>
-                                                    <option value="Tubo de Cobre Dañado">Tubo de Cobre Dañado</option>
-                                                    <option value="Mala Nivelación">Mala Nivelación</option>
-                                                    <option value="Inclusiones">Inclusiones</option>
-                                                    <option value="Falta de Fusión">Falta de Fusión</option>
-                                                    <option value="Falta de Penetración">Falta de Penetración</option>
-                                                    <option value="Porosidad">Porosidad</option>
-                                                    <option value="Garganta Insuficiente">Garganta Insuficiente</option>
-                                                    <option value="Pierna Insuficiente">Pierna Insuficiente</option>
-                                                    <option value="Corte Biselado">Corte Biselado</option>
-                                                    <option value="Pintura Mal Aplicada">Pintura Mal Aplicada</option>
-                                                    <option value="Oxidación">Oxidación</option>
-                                                    <option value="Poros">Poros</option>
-                                                    <option value="Socavados">Socavados</option>
-                                                    <option value="Falta de Limpieza">Falta de Limpieza</option>
-                                                    <option value="Falta de Soldadura">Falta de Soldadura</option>
-                                                    <option value="Falta de Remates">Falta de Remates</option>
-                                                    <option value="Medida Fuera de Especificación">Medida Fuera de Especificación</option>
-                                                    <option value="Falta de Componentes">Falta de Componentes</option>
-                                                    <option value="Solape">Solape</option>
-                                                    <option value="Mala Expansión">Mala Expansión</option>
-                                                    <option value="Dobles Invertido">Dobles Invertido</option>
+                                                    {catalogs.defecto.map(def => (
+                                                        <option key={def} value={def}>{def}</option>
+                                                    ))}
+                                                    {catalogs.defecto.length === 0 && (
+                                                        <>
+                                                            <option value="Pieza Mal Ensamblada">Pieza Mal Ensamblada</option>
+                                                            <option value="Pieza Dañada">Pieza Dañada</option>
+                                                            <option value="Sin Identificación">Sin Identificación</option>
+                                                            <option value="Laminado">Laminado</option>
+                                                            <option value="Fuga de Helio">Fuga de Helio</option>
+                                                            <option value="Fuga de Agua">Fuga de Agua</option>
+                                                            <option value="Fuga de Aire">Fuga de Aire</option>
+                                                            <option value="Falta de Roscas">Falta de Roscas</option>
+                                                            <option value="Enterrones con Diodo">Enterrones con Diodo</option>
+                                                            <option value="Roscas Dañadas">Roscas Dañadas</option>
+                                                            <option value="Grietas">Grietas</option>
+                                                            <option value="Mal Corte">Mal Corte</option>
+                                                            <option value="Mal Identificada">Mal Identificada</option>
+                                                            <option value="Planicidad">Planicidad</option>
+                                                            <option value="Tubo de Cobre Dañado">Tubo de Cobre Dañado</option>
+                                                            <option value="Mala Nivelación">Mala Nivelación</option>
+                                                            <option value="Inclusiones">Inclusiones</option>
+                                                            <option value="Falta de Fusión">Falta de Fusión</option>
+                                                            <option value="Falta de Penetración">Falta de Penetración</option>
+                                                            <option value="Porosidad">Porosidad</option>
+                                                            <option value="Garganta Insuficiente">Garganta Insuficiente</option>
+                                                            <option value="Pierna Insuficiente">Pierna Insuficiente</option>
+                                                            <option value="Corte Biselado">Corte Biselado</option>
+                                                            <option value="Pintura Mal Aplicada">Pintura Mal Aplicada</option>
+                                                            <option value="Oxidación">Oxidación</option>
+                                                            <option value="Poros">Poros</option>
+                                                            <option value="Socavados">Socavados</option>
+                                                            <option value="Falta de Limpieza">Falta de Limpieza</option>
+                                                            <option value="Falta de Soldadura">Falta de Soldadura</option>
+                                                            <option value="Falta de Remates">Falta de Remates</option>
+                                                            <option value="Medida Fuera de Especificación">Medida Fuera de Especificación</option>
+                                                            <option value="Falta de Componentes">Falta de Componentes</option>
+                                                            <option value="Solape">Solape</option>
+                                                            <option value="Mala Expansión">Mala Expansión</option>
+                                                            <option value="Dobles Invertido">Dobles Invertido</option>
+                                                        </>
+                                                    )}
                                                 </select>
+
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Operador</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={formData.roles?.operador || ''}
                                                     onChange={(e) => handleSubFieldChange('roles', 'operador', e.target.value)}
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
-                                                    placeholder="Nombre del operador..."
-                                                />
+                                                >
+                                                    <option value="">Seleccionar operador...</option>
+                                                    {catalogs.operador.map(op => (
+                                                        <option key={op} value={op}>{op}</option>
+                                                    ))}
+                                                </select>
                                             </div>
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Supervisor</label>
-                                                <input
-                                                    type="text"
+                                                <select
                                                     value={formData.roles?.supervisor || ''}
                                                     onChange={(e) => handleSubFieldChange('roles', 'supervisor', e.target.value)}
                                                     className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
-                                                    placeholder="Nombre del supervisor..."
-                                                />
+                                                >
+                                                    <option value="">Seleccionar supervisor...</option>
+                                                    {catalogs.supervisor.map(sup => (
+                                                        <option key={sup} value={sup}>{sup}</option>
+                                                    ))}
+                                                </select>
                                             </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest ml-1">Auditor</label>
+                                                <select
+                                                    value={formData.roles?.auditor || ''}
+                                                    onChange={(e) => handleSubFieldChange('roles', 'auditor', e.target.value)}
+                                                    className="w-full bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 text-white focus:ring-1 focus:ring-blue-500/50 outline-none text-sm"
+                                                >
+                                                    <option value="">Seleccionar auditor...</option>
+                                                    {catalogs.auditor?.map(aud => (
+                                                        <option key={aud} value={aud}>{aud}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -845,6 +929,17 @@ const Documents = () => {
                                         className="hidden"
                                     />
                                 </label>
+
+                                <button
+                                    onClick={handleClearAllData}
+                                    className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-red-600/10 hover:bg-red-600/20 text-red-500 border border-red-500/20 rounded-2xl transition-all font-bold group"
+                                >
+                                    <TrashIcon className="w-6 h-6 group-hover:scale-110 transition-transform" />
+                                    <div>
+                                        <div className="text-left">Borrar Base de Datos</div>
+                                        <div className="text-[10px] font-normal opacity-60 uppercase tracking-tighter">Eliminar todos los reportes</div>
+                                    </div>
+                                </button>
                             </div>
 
                             <div className="pt-4 border-t border-white/5">

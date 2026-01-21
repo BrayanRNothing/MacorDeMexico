@@ -187,12 +187,25 @@ export const generatePNCReport = (doc) => {
     const sopLabels = ['Certificado de Calidad', 'Especificaciones - Dibujo', 'Reporte de Queja', 'Solicitud de Desviación', 'Otro'];
     const sopKeys = ['certificado', 'especificaciones', 'queja', 'desviacion', 'otro'];
     sopKeys.forEach((key, i) => {
-        drawCheckbox(margin + contentWidth / 2 + 5, y + 12 + (i * 7), sopLabels[i], doc.docsSoporte[key]);
+        const xPos = margin + contentWidth / 2 + 5;
+        const yPos = y + 12 + (i * 7);
+
+        drawCheckbox(xPos, yPos, sopLabels[i], doc.docsSoporte[key]);
+
+        // Línea para escribir al lado de cada opción
+        const lineStartX = xPos + (i === 4 ? 15 : 60); // "Otro" tiene label más corto
+        const lineEndX = contentWidth + margin - 5;
+        pdf.setLineWidth(0.1);
+        pdf.setDrawColor(150, 150, 150);
+        pdf.line(lineStartX, yPos + 0.5, lineEndX, yPos + 0.5);
+        pdf.setDrawColor(0, 0, 0);
+        pdf.setLineWidth(0.2);
+
         if (key === 'otro' && doc.docsSoporte.otro) {
-            pdf.text(doc.docsSoporte.otro, margin + contentWidth / 2 + 20, y + 12 + (i * 7));
-            pdf.line(margin + contentWidth / 2 + 18, y + 12 + (i * 7) + 0.5, contentWidth + margin - 5, y + 12 + (i * 7) + 0.5);
+            pdf.text(doc.docsSoporte.otro, lineStartX + 2, yPos);
         }
     });
+
     y += 45;
 
     // --- AUTORIZACIONES SCRAP ---
@@ -230,14 +243,31 @@ export const generatePNCReport = (doc) => {
     notifyKeys.forEach((key, i) => {
         const col = i % 2;
         const row = Math.floor(i / 2);
+        const xPos = margin + 5 + (col * 95);
+        const yPos = y + 4 + (row * 5);
+
         if (i < 5) {
-            drawCheckbox(margin + 5 + (col * 95), y + 4 + (row * 5), notifyLabels[i], doc.notificadoA?.[key]);
+            drawCheckbox(xPos, yPos, notifyLabels[i], doc.notificadoA?.[key]);
+            // Línea para escribir nombre al lado
+            pdf.setLineWidth(0.1);
+            pdf.setDrawColor(150, 150, 150);
+            pdf.line(xPos + 32, yPos + 0.5, xPos + 88, yPos + 0.5);
+            pdf.setDrawColor(0, 0, 0);
+            pdf.setLineWidth(0.2);
         } else {
-            drawCheckbox(margin + 5 + (col * 95), y + 4 + (row * 5), notifyLabels[i], !!doc.notificadoA?.otro);
-            pdf.text(doc.notificadoA?.otro || '', margin + 30 + (col * 95), y + 4 + (row * 5));
-            pdf.line(margin + 28 + (col * 95), y + 4.5 + (row * 5), contentWidth + margin - 2, y + 4.5 + (row * 5));
+            drawCheckbox(xPos, yPos, notifyLabels[i], !!doc.notificadoA?.otro);
+            // Línea para "OTRO(S)"
+            pdf.setLineWidth(0.1);
+            pdf.setDrawColor(150, 150, 150);
+            pdf.line(xPos + 25, yPos + 0.5, xPos + 88, yPos + 0.5);
+            pdf.setDrawColor(0, 0, 0);
+            pdf.setLineWidth(0.2);
+            if (doc.notificadoA?.otro) {
+                pdf.text(doc.notificadoA.otro, xPos + 27, yPos);
+            }
         }
     });
+
     y += 15;
 
     // --- FOOTER: Document Control ---
