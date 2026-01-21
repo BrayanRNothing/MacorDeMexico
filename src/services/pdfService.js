@@ -34,7 +34,7 @@ export const generatePNCReport = (doc) => {
     // --- HEADER ---
     // Logo
     try {
-        pdf.addImage(logo, 'PNG', margin + 2, y + 3, 36, 10);
+        pdf.addImage(logo, 'PNG', margin + 2, y - 2, 36, 15);
     } catch (e) {
         pdf.setFontSize(10);
         pdf.setFont('helvetica', 'bold');
@@ -51,7 +51,6 @@ export const generatePNCReport = (doc) => {
     // Folio
     pdf.setFontSize(10);
     pdf.text(`N° FOLIO: ${doc.folio || ''}`, pageWidth - margin - 35, y + 8);
-    pdf.line(pageWidth - margin - 15, y + 8, pageWidth - margin, y + 8);
 
     y += 20;
 
