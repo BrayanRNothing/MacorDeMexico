@@ -1,8 +1,11 @@
 {
-    "rewrites": [
+    "routes": [
         {
-            "source": "/((?!assets|vite\\.svg|manifest\\.json|sw\\.js).*)",
-            "destination": "/index.html"
+            "handle": "filesystem"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/index.html"
         }
     ]
 }
