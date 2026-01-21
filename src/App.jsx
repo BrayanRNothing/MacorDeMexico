@@ -9,6 +9,7 @@ import Users from './pages/Users';
 import Documents from './pages/Documents';
 import Metrics from './pages/Metrics';
 import Management from './pages/Management';
+import EnvDebug from './components/EnvDebug';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="management" element={<Management />} />
           </Route>
 
+          <Route path="/debug" element={<EnvDebug />} />
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
