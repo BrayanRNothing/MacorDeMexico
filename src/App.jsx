@@ -34,7 +34,7 @@ function App() {
           </Route>
 
           <Route path="/debug" element={<EnvDebug />} />
-          <Route path="/" element={<Login />} />
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </div>
