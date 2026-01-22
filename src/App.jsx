@@ -14,8 +14,8 @@ import EnvDebug from './components/EnvDebug';
 function App() {
   return (
     <Router>
-      <div className="relative min-h-screen">
-        <AnimatedBackground />
+      <AnimatedBackground />
+      <div className="relative min-h-screen z-10">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
