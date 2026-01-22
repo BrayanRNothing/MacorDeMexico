@@ -7,6 +7,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DAE - Sistema de Reportes PNC</title>
   <link rel="manifest" href="/manifest.json" />
+  <script>
+    // Immediate redirect from root to /login
+    if (window.location.pathname === '/') {
+      window.location.replace('/login');
+    }
+  </script>
 </head>
 
 <body>
