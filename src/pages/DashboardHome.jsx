@@ -1,7 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChartBarIcon, UsersIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import api from '../services/api';
 
 const DashboardHome = () => {
+    const [stats, setStats] = useState({
+        totalUsers: 0,
+        totalDocuments: 0,
+        activeReports: 0
+    });
+
+    const updateStats = async () => {
+        try {
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+
+            // Get documents from API
+            const documentsData = await api.getPNCReports();
+            const documents = documentsData.success ? documentsData.reports : [];
+
+            setStats({
+                totalUsers: users.length,
+                totalDocuments: documents.length,
+                activeReports: documents.filter(d => d.data?.status === 'Activo').length
+            });
+        } catch (err) {
+            console.error('Error updating stats:', err);
+            // Fallback to just showing users if API fails
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            setStats({
+                totalUsers: users.length,
+                totalDocuments: 0,
+                activeReports: 0
+            });
+        }
+    };
+
+    useEffect(() => {
+        // Initial load
+        updateStats();
+
+        // Listen for storage changes
+        window.addEventListener('storage', updateStats);
+
+        // Custom event for same-tab updates
+        window.addEventListener('localStorageUpdated', updateStats);
+
+        return () => {
+            window.removeEventListener('storage', updateStats);
+            window.removeEventListener('localStorageUpdated', updateStats);
+        };
+    }, []);
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -17,7 +66,7 @@ const DashboardHome = () => {
                         <div>
                             <p className="text-gray-400 text-sm font-medium">Total Usuarios</p>
                             <p className="text-3xl font-bold mt-2">
-                                {JSON.parse(localStorage.getItem('users') || '[]').length}
+                                {stats.totalUsers}
                             </p>
                         </div>
                         <div className="w-14 h-14 bg-blue-500/20 rounded-xl flex items-center justify-center">
@@ -31,7 +80,7 @@ const DashboardHome = () => {
                         <div>
                             <p className="text-gray-400 text-sm font-medium">Total Documentos</p>
                             <p className="text-3xl font-bold mt-2">
-                                {JSON.parse(localStorage.getItem('documents') || '[]').length}
+                                {stats.totalDocuments}
                             </p>
                         </div>
                         <div className="w-14 h-14 bg-purple-500/20 rounded-xl flex items-center justify-center">
@@ -45,7 +94,7 @@ const DashboardHome = () => {
                         <div>
                             <p className="text-gray-400 text-sm font-medium">Reportes Activos</p>
                             <p className="text-3xl font-bold mt-2">
-                                {JSON.parse(localStorage.getItem('documents') || '[]').filter(d => d.status === 'Activo').length}
+                                {stats.activeReports}
                             </p>
                         </div>
                         <div className="w-14 h-14 bg-green-500/20 rounded-xl flex items-center justify-center">

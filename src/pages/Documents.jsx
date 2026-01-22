@@ -112,6 +112,8 @@ const Documents = () => {
             const data = await api.getPNCReports();
             if (data.success) {
                 setDocuments(data.reports.map(r => ({ ...r.data, id: r.id })));
+                // Dispatch custom event to update dashboard
+                window.dispatchEvent(new Event('localStorageUpdated'));
             }
         } catch (err) {
             console.error('Error loading documents:', err);

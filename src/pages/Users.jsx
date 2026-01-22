@@ -24,6 +24,8 @@ const Users = () => {
     const saveUsers = (updatedUsers) => {
         localStorage.setItem('users', JSON.stringify(updatedUsers));
         setUsers(updatedUsers);
+        // Dispatch custom event to update dashboard
+        window.dispatchEvent(new Event('localStorageUpdated'));
     };
 
     const handleSubmit = (e) => {
